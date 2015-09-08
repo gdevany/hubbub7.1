@@ -1,9 +1,12 @@
 ALTER TABLE Profiles DROP userid;
 ALTER TABLE Users DROP profileid;
 
+DROP TABLE Htags;
+DROP TABLE Taggedposts;
 DROP TABLE Posts;
 DROP TABLE Profiles;
 DROP TABLE Users;
+DROP TABLE Htags;
 
 CREATE TABLE Users (
     username VARCHAR(12) NOT NULL UNIQUE,
@@ -21,6 +24,16 @@ CREATE TABLE Profiles (
     userid INT NOT NULL,
     biography LONG VARCHAR,
     id INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+);
+
+CREATE TABLE Htags (
+    htag VARCHAR(20),
+    htagid INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+);
+
+CREATE TABLE Taggedposts (
+    taggedid INT NOT NULL,
+    postid INT
 );
 
 ALTER TABLE Profiles ADD FOREIGN KEY (userid) REFERENCES Users (id);

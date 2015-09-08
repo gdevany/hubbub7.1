@@ -36,6 +36,7 @@ public class HubbubDAO {
             pstat.setDate(3, new java.sql.Date(post.getPostDate().getTime()));
             pstat.executeUpdate();
             lastError = null;
+            addTag(post.getContent());
         } catch (SQLException sqle) {
             lastError = sqle.getMessage();
         } finally {
@@ -46,6 +47,54 @@ public class HubbubDAO {
         }
     }
 
+    public void addTag(String content) {
+        String sql = "INSERT INTO HTAGS (htag) VALUES (?)";
+        PreparedStatement pstat = null;
+        try {
+                pstat = CONN.prepareStatement(sql);
+                String s = content;
+                for(String cw : s.split(" ")){
+                    if(cw.startsWith("^")){
+                        /*
+                        String sqlfind = "SELECT * FROM htags WHERE htag = ?";
+                        sqlfind = String.format(sqlfind, cw);
+                        PreparedStatement stat = null;
+                        ResultSet rs = null;
+                        try {
+                            stat = CONN.prepareStatement(sqlfind);
+                            rs = stat.executeQuery(sqlfind);
+                            if (rs.next()) {
+                               // if you find one, don't add it
+                            }
+                            lastError = null;
+                        } catch (SQLException sqle) {
+                            lastError = sqle.getMessage();
+                        } finally {
+                            if (rs != null)
+                                try {
+                                    rs.close();
+                                } catch (SQLException sqle) {}
+                                    if (stat != null)
+                                    try {
+                                        stat.close();
+                                    } catch (SQLException sqle) {}            
+                        }
+                     */           
+                      
+                        pstat.setString(1, cw);
+                        pstat.executeUpdate();
+                    }
+                }  
+            } catch (SQLException sqle) {
+                lastError = sqle.getMessage();
+            } finally {
+                if (pstat != null)
+                    try {
+                        pstat.close();
+                    } catch (SQLException sqle){}
+        }
+    }
+    
     public void addPost(String content, User user) {
         Post post = new Post(content, new Date());
         post.setAuthor(user);
