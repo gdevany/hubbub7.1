@@ -36,7 +36,7 @@ public class HubbubDAO {
             pstat.setDate(3, new java.sql.Date(post.getPostDate().getTime()));
             pstat.executeUpdate();
             lastError = null;
-            addTag(post.getContent());
+            addTag(post.getContent(), post.getId());
         } catch (SQLException sqle) {
             lastError = sqle.getMessage();
         } finally {
@@ -47,24 +47,39 @@ public class HubbubDAO {
         }
     }
 
-    public void addTag(String content) {
+    public void addTag(String content, Integer pid) {
         String sql = "INSERT INTO HTAGS (htag) VALUES (?)";
-        PreparedStatement pstat = null;
+        PreparedStatement pstat = null, pstattp = null;
         try {
                 pstat = CONN.prepareStatement(sql);
                 String s = content;
+                int postid = pid;
+                int tagid = 0;
+                int htpid = 0;
+                
                 for(String cw : s.split(" ")){
                     if(cw.startsWith("^")){
-                        /*
+                        
                         String sqlfind = "SELECT * FROM htags WHERE htag = ?";
-                        sqlfind = String.format(sqlfind, cw);
-                        PreparedStatement stat = null;
+                        String sqlidtag = "INSERT INTO taggedposts (taggedid, postid) VALUES (?, ?)";
+                        pstat = null;
+                        pstattp = null;
                         ResultSet rs = null;
                         try {
-                            stat = CONN.prepareStatement(sqlfind);
-                            rs = stat.executeQuery(sqlfind);
+                            sqlfind = String.format(sqlfind, cw);
+                            pstat = CONN.prepareStatement(sqlfind);
+                            rs = pstat.executeQuery(sqlfind);
                             if (rs.next()) {
-                               // if you find one, don't add it
+                                tagid = rs.getInt("htagid");
+                                htpid = postid;
+                                pstattp = CONN.prepareStatement(sqlidtag);
+                                pstattp.setInt(1, tagid);
+                                pstattp.setInt(2, htpid);
+                                pstattp.executeUpdate();
+                            }
+                            else {
+                                pstat.setString(1, cw);
+                                pstat.executeUpdate();
                             }
                             lastError = null;
                         } catch (SQLException sqle) {
@@ -74,15 +89,11 @@ public class HubbubDAO {
                                 try {
                                     rs.close();
                                 } catch (SQLException sqle) {}
-                                    if (stat != null)
+                                    if (pstat != null)
                                     try {
-                                        stat.close();
+                                        pstat.close();
                                     } catch (SQLException sqle) {}            
                         }
-                     */           
-                      
-                        pstat.setString(1, cw);
-                        pstat.executeUpdate();
                     }
                 }  
             } catch (SQLException sqle) {
